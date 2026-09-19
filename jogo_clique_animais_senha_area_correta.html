@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- =========================================================
+       CONFIGURAÇÕES BÁSICAS DA PÁGINA
+       ========================================================= -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jogo dos Animais em Espanhol</title>
+
+  <style>
+    /* =========================================================
+       1. VARIÁVEIS DE CORES E SOMBRAS
+       ========================================================= */
+    :root {
+      --azul: #101d3a;
+      --laranja: #ff9f1c;
+      --verde: #3fbf72;
+      --vermelho: #e84a5f;
+      --claro: #fffaf0;
+      --sombra: 0 14px 30px rgba(16, 29, 58, 0.22);
+    }
+
+    /* =========================================================
+       2. RESET E CONFIGURAÇÃO GERAL
+       ========================================================= */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--azul);
+      background: linear-gradient(135deg, #fff7df, #e9f7ff);
+    }
+
+    /* =========================================================
+       3. CONTAINER PRINCIPAL
+       ========================================================= */
+    .falange-wrap {
+      max-width: 1450px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    /* =========================================================
+       4. CABEÇALHO
+       ========================================================= */
+    header {
+      padding: 18px 22px;
+      color: #ffffff;
+      text-align: center;
+      background: var(--azul);
+      border: 5px solid #ffffff;
+      border-radius: 24px;
+      box-shadow: var(--sombra);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 3vw, 2.6rem);
+      letter-spacing: 0.5px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      font-size: clamp(0.95rem, 2vw, 1.2rem);
+    }
+
+    /* =========================================================
+       5. ÁREA DO JOGO
+       ========================================================= */
+    .game {
+      display: grid;
+      grid-template-columns: 285px 1fr;
+      gap: 18px;
+      align-items: start;
+      margin-top: 18px;
+    }
+
+    /* Painel lateral com rodada, palavra, dica, progresso e botões */
+    .panel {
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.93);
+      border: 4px solid var(--azul);
+      border-radius: 22px;
+      box-shadow: var(--sombra);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      padding: 8px 14px;
+      color: var(--azul);
+      font-weight: 900;
+      background: var(--laranja);
+      border: 3px solid var(--azul);
+      border-radius: 999px;
+    }
+
+    .word {
+      margin: 8px 0 12px;
+      color: var(--azul);
+      font-size: clamp(2rem, 5vw, 3.9rem);
+      font-weight: 900;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .hint {
+      padding: 14px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.45;
+      background: #f2f6ff;
+      border-left: 8px solid var(--laranja);
+      border-radius: 16px;
+    }
+
+    /* Barra de progresso */
+    .progress {
+      height: 22px;
+      margin: 14px 0;
+      overflow: hidden;
+      background: #dfe7f2;
+      border: 3px solid var(--azul);
+      border-radius: 999px;
+    }
+
+    .bar {
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--verde), #9ee493);
+      transition: width 0.35s;
+    }
+
+    /* Contadores */
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .stat {
+      padding: 10px;
+      font-weight: 900;
+      text-align: center;
+      background: #fff7d6;
+      border: 3px solid var(--azul);
+      border-radius: 14px;
+    }
+
+    .stat span {
+      display: block;
+      font-size: 1.6rem;
+    }
+
+    /* Botões */
+    button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 13px 14px;
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 900;
+      cursor: pointer;
+      background: var(--azul);
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 6px 0 #071026;
+      transition: 0.15s;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      box-shadow: 0 2px 0 #071026;
+      transform: translateY(4px);
+    }
+
+    .btn-orange {
+      color: var(--azul);
+      background: var(--laranja);
+      box-shadow: 0 6px 0 #b56600;
+    }
+
+    /* =========================================================
+       6. PALCO DA IMAGEM E ÁREAS CLICÁVEIS
+       ========================================================= */
+    .stage {
+      position: relative;
+      min-height: 560px;
+      padding: 10px;
+      overflow: hidden;
+      background: #ffffff;
+      border: 5px solid var(--azul);
+      border-radius: 24px;
+      box-shadow: var(--sombra);
+    }
+
+    .imgbox {
+      position: relative;
+      width: 100%;
+      padding-bottom: 6px;
+      overflow: auto;
+      user-select: none;
+    }
+
+    #animalImage {
+      display: block;
+      width: min(1250px, 128vw);
+      max-width: none;
+      height: auto;
+      cursor: crosshair;
+      border-radius: 16px;
+    }
+
+    /* Área correta opcional, usada apenas para conferência do professor */
+    .target {
+      position: absolute;
+      display: none;
+      border: 4px dashed rgba(63, 191, 114, 0.9);
+      border-radius: 50%;
+      box-shadow: 0 0 18px rgba(63, 191, 114, 0.9);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Mensagem central de acerto/erro */
+    .feedback {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 5;
+      display: none;
+      min-width: min(420px, 90%);
+      padding: 22px;
+      color: var(--azul);
+      font-size: 1.5rem;
+      font-weight: 900;
+      text-align: center;
+      background: #ffffff;
+      border: 5px solid var(--azul);
+      border-radius: 24px;
+      box-shadow: var(--sombra);
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+
+    .feedback.ok {
+      border-color: var(--verde);
+    }
+
+    .feedback.err {
+      border-color: var(--vermelho);
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      color: #46516b;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    /* =========================================================
+       7. RESPONSIVIDADE
+       ========================================================= */
+    @media (max-width: 880px) {
+      .game {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        order: 2;
+      }
+
+      .stage {
+        order: 1;
+        min-height: 520px;
+      }
+
+      #animalImage {
+        width: 1150px;
+      }
+    }
+
+    /* =========================================================
+       8. IMPRESSÃO
+       ========================================================= */
+    @media print {
+      body {
+        background: #ffffff;
+      }
+
+      button {
+        display: none;
+      }
+
+      .game {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- =========================================================
+       ESTRUTURA VISUAL DA ATIVIDADE
+       ========================================================= -->
+  <div class="falange-wrap">
+    <header>
+      <h1>🐾 Jogo dos Animais em Espanhol</h1>
+      <p>Escute a dica, clique no animal correto e avance. Se errar, começa tudo de novo!</p>
+    </header>
+
+    <main class="game">
+      <!-- Painel de comandos e informações -->
+      <section class="panel" aria-label="Painel do jogo">
+        <div class="badge" id="roundBadge">Rodada 1 de 20</div>
+        <div class="word" id="word">el león</div>
+        <div class="hint" id="hint">Clique em “Ouvir dica” para começar.</div>
+
+        <div class="progress" aria-label="Progresso da atividade">
+          <div class="bar" id="bar"></div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">Acertos<span id="hits">0</span></div>
+          <div class="stat">Tentativas<span id="tries">0</span></div>
+        </div>
+
+        <button class="btn-orange" type="button" onclick="speakHint()">🔊 Ouvir dica</button>
+        <button type="button" onclick="startGame()">🔁 Reiniciar jogo</button>
+        <button type="button" onclick="toggleTarget()">👁️ Mostrar/ocultar área do correto</button>
+      </section>
+
+      <!-- Imagem principal do jogo -->
+      <section class="stage" aria-label="Imagem com animais clicáveis">
+        <div class="imgbox" id="imgbox">
+          <img
+            id="animalImage"
+            src="todosanimales(2).png"
+            alt="Imagem com vários animais"
+          / draggable="false">
+          <div class="target" id="target"></div>
+          <div class="feedback" id="feedback"></div>
+        </div>
+      </section>
+    </main>
+
+    <div class="footer-note">
+      Atividade interativa, responsiva e com narração pelo navegador.
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================
+       1. DADOS DOS ANIMAIS
+
+       x, y e r indicam a área correta de clique na imagem original:
+       - x: posição horizontal do animal
+       - y: posição vertical do animal
+       - r: raio da área clicável
+       ========================================================= */
+    const animals = [
+  {
+    "id": "perro",
+    "name": "Quién soy",
+    "hint": "Soy el mejor amigo del hombre.",
+    "x": 38,
+    "y": 27,
+    "r": 34
+  },
+  {
+    "id": "caballo",
+    "name": "Quién soy",
+    "hint": "Tengo crin y puedo correr muy rápido.",
+    "x": 132,
+    "y": 72,
+    "r": 45
+  },
+  {
+    "id": "leon",
+    "name": "Quién soy",
+    "hint": "Soy el rey de la selva.",
+    "x": 55,
+    "y": 222,
+    "r": 42
+  },
+  {
+    "id": "jirafa",
+    "name": "Quién soy",
+    "hint": "Tengo el cuello muy largo.",
+    "x": 66,
+    "y": 295,
+    "r": 47
+  },
+  {
+    "id": "cangrejo",
+    "name": "Quién soy",
+    "hint": "Vivo cerca del mar, camino de lado y tengo dos pinzas grandes.",
+    "x": 724,
+    "y": 380,
+    "r": 45
+  },
+  {
+    "id": "conejo",
+    "name": "Quién soy",
+    "hint": "Tengo orejas largas y salto.",
+    "x": 190,
+    "y": 326,
+    "r": 38
+  },
+  {
+    "id": "pez",
+    "name": "Quién soy",
+    "hint": "Vivo en el agua y tengo aletas.",
+    "x": 220,
+    "y": 181,
+    "r": 38
+  },
+  {
+    "id": "elefante",
+    "name": "Quién soy",
+    "hint": "Tengo una trompa larga.",
+    "x": 292,
+    "y": 158,
+    "r": 48
+  },
+  {
+    "id": "camello",
+    "name": "Quién soy",
+    "hint": "Tengo jorobas y vivo en lugares secos.",
+    "x": 383,
+    "y": 145,
+    "r": 60
+  },
+  {
+    "id": "tigre",
+    "name": "Quién soy",
+    "hint": "Tengo rayas negras y naranjas.",
+    "x": 420,
+    "y": 51,
+    "r": 42
+  },
+  {
+    "id": "hipopotamo",
+    "name": "Quién soy",
+    "hint": "Soy grande y vivo cerca del agua.",
+    "x": 518,
+    "y": 30,
+    "r": 44
+  },
+  {
+    "id": "gallina",
+    "name": "Quién soy",
+    "hint": "Pongo huevos.",
+    "x": 606,
+    "y": 65,
+    "r": 36
+  },
+  {
+    "id": "lobo",
+    "name": "Quién soy",
+    "hint": "Aúllo en la noche.",
+    "x": 822,
+    "y": 39,
+    "r": 42
+  },
+  {
+    "id": "pinguino",
+    "name": "Quién soy",
+    "hint": "Soy un ave que no vuela y vivo en lugares fríos.",
+    "x": 715,
+    "y": 102,
+    "r": 35
+  },
+  {
+    "id": "koala",
+    "name": "Quién soy",
+    "hint": "Soy gris y me gusta estar en los árboles.",
+    "x": 515,
+    "y": 151,
+    "r": 36
+  },
+  {
+    "id": "pulpo",
+    "name": "Quién soy",
+    "hint": "Tengo muchos tentáculos.",
+    "x": 545,
+    "y": 252,
+    "r": 46
+  },
+  {
+    "id": "tortuga",
+    "name": "Quién soy",
+    "hint": "Camino despacio y tengo caparazón.",
+    "x": 403,
+    "y": 286,
+    "r": 38
+  },
+  {
+    "id": "cebra",
+    "name": "Quién soy",
+    "hint": "Tengo rayas blancas y negras.",
+    "x": 483,
+    "y": 370,
+    "r": 38
+  },
+  {
+    "id": "rinoceronte",
+    "name": "Quién soy",
+    "hint": "Tengo un cuerno en la nariz.",
+    "x": 558,
+    "y": 375,
+    "r": 62
+  },
+  {
+    "id": "rana",
+    "name": "Quién soy",
+    "hint": "Soy verde, salto y digo croac.",
+    "x": 890,
+    "y": 302,
+    "r": 58
+  }
+];
+
+    /* =========================================================
+       2. ESTADO DO JOGO
+       ========================================================= */
+    let current = 0;       // Rodada atual
+    let hits = 0;          // Total de acertos
+    let tries = 0;         // Total de tentativas
+    let showTarget = false;// Mostra/oculta a área correta para conferência
+    let locked = false;    // Evita vários cliques durante o feedback
+
+    /* =========================================================
+       3. ELEMENTOS DO HTML USADOS PELO JAVASCRIPT
+       ========================================================= */
+    const img = document.getElementById('animalImage');
+    const target = document.getElementById('target');
+
+    /* =========================================================
+       4. ATUALIZA AS INFORMAÇÕES NA TELA
+       ========================================================= */
+    function updateScreen() {
+      // Quando passar do último animal, mostra a mensagem final.
+      if (current >= animals.length) {
+        document.getElementById('roundBadge').textContent = `Rodada ${animals.length} de ${animals.length}`;
+        document.getElementById('word').textContent = 'ATIVIDADE CONCLUÍDA!';
+        document.getElementById('hint').textContent = 'Parabéns! Você encontrou todos os 20 animais.';
+        document.getElementById('hits').textContent = hits;
+        document.getElementById('tries').textContent = tries;
+        document.getElementById('bar').style.width = '100%';
+        target.style.display = 'none';
+        return;
+      }
+
+      const animal = animals[current];
+
+      document.getElementById('roundBadge').textContent = `Rodada ${current + 1} de ${animals.length}`;
+      document.getElementById('word').textContent = animal.name;
+      document.getElementById('hint').textContent = animal.hint;
+      document.getElementById('hits').textContent = hits;
+      document.getElementById('tries').textContent = tries;
+      document.getElementById('bar').style.width = `${(hits / animals.length) * 100}%`;
+
+      positionTarget();
+    }
+
+    /* =========================================================
+       5. POSICIONA A ÁREA CORRETA NA IMAGEM
+
+       A imagem muda de tamanho conforme a tela. Por isso, a função
+       calcula a escala entre o tamanho original e o tamanho exibido.
+       ========================================================= */
+    function positionTarget() {
+      if (current >= animals.length) {
+        target.style.display = 'none';
+        return;
+      }
+
+      const animal = animals[current];
+      const scaleX = img.clientWidth / img.naturalWidth;
+      const scaleY = img.clientHeight / img.naturalHeight;
+
+      target.style.left = `${animal.x * scaleX}px`;
+      target.style.top = `${animal.y * scaleY}px`;
+      target.style.width = `${animal.r * 2 * scaleX}px`;
+      target.style.height = `${animal.r * 2 * scaleY}px`;
+      target.style.display = showTarget ? 'block' : 'none';
+    }
+
+    /* =========================================================
+       6. NARRAÇÃO DA DICA EM ESPANHOL
+       ========================================================= */
+    function speak(text) {
+      if (!('speechSynthesis' in window)) return;
+
+      speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'es-ES';
+      utterance.rate = 0.86;
+      utterance.pitch = 1;
+
+      speechSynthesis.speak(utterance);
+    }
+
+    function speakHint() {
+      if (current < animals.length) {
+        speak(animals[current].hint);
+      }
+    }
+
+    /* =========================================================
+       7. FEEDBACK VISUAL DE ACERTO OU ERRO
+       ========================================================= */
+    function feedback(message, type) {
+      const feedbackBox = document.getElementById('feedback');
+
+      feedbackBox.textContent = message;
+      feedbackBox.className = `feedback ${type}`;
+      feedbackBox.style.display = 'block';
+
+      const delay = type === 'ok' ? 850 : 1450;
+
+      setTimeout(() => {
+        feedbackBox.style.display = 'none';
+        locked = false;
+      }, delay);
+    }
+
+    /* =========================================================
+       8. CONTROLES DO JOGO
+       ========================================================= */
+    function startGame() {
+      current = 0;
+      hits = 0;
+      tries = 0;
+      locked = false;
+
+      updateScreen();
+      speakHint();
+    }
+
+    function toggleTarget() {
+      // Proteção para uso do professor: só mostra/oculta a área correta com senha.
+      const senha = prompt('Digite a senha para mostrar/ocultar a área do correto:');
+
+      if (senha !== 'FALANGE123') {
+        alert('Senha incorreta. A área correta continuará bloqueada.');
+        return;
+      }
+
+      showTarget = !showTarget;
+      positionTarget();
+    }
+
+    /* =========================================================
+       9. VERIFICA O CLIQUE DO ALUNO NA IMAGEM
+       ========================================================= */
+    img.addEventListener('click', (event) => {
+      if (locked || current >= animals.length) return;
+
+      locked = true;
+      tries++;
+
+      const rect = img.getBoundingClientRect();
+
+      // Converte o clique da tela para a escala original da imagem.
+      const clickX = (event.clientX - rect.left) * (img.naturalWidth / rect.width);
+      const clickY = (event.clientY - rect.top) * (img.naturalHeight / rect.height);
+
+      const animal = animals[current];
+      const distance = Math.hypot(clickX - animal.x, clickY - animal.y);
+
+      if (distance <= animal.r) {
+        handleCorrectAnswer();
+      } else {
+        handleWrongAnswer();
+      }
+    });
+
+    /* =========================================================
+       10. AÇÃO QUANDO O ALUNO ACERTA
+       ========================================================= */
+    function handleCorrectAnswer() {
+      hits++;
+      current++;
+
+      // Finaliza corretamente após o 20º animal.
+      if (current >= animals.length) {
+        locked = true;
+        updateScreen();
+        feedback('🎉 ATIVIDADE CONCLUÍDA! Você encontrou os 20 animais!', 'ok');
+        speak('¡Felicitaciones! Actividad concluida. Has encontrado los veinte animales.');
+        return;
+      }
+
+      updateScreen();
+      feedback('✅ Muito bem! Próxima dica...', 'ok');
+      setTimeout(speakHint, 700);
+    }
+
+    /* =========================================================
+       11. AÇÃO QUANDO O ALUNO ERRA
+       ========================================================= */
+    function handleWrongAnswer() {
+      feedback('❌ Ops! Animal errado. O jogo vai recomeçar.', 'err');
+      speak('Animal incorrecto. Vamos a empezar otra vez.');
+
+      setTimeout(() => {
+        current = 0;
+        hits = 0;
+        updateScreen();
+        speakHint();
+      }, 1350);
+    }
+
+    /* =========================================================
+       12. EVENTOS DE INICIALIZAÇÃO
+       ========================================================= */
+    window.addEventListener('resize', positionTarget);
+
+    window.addEventListener('load', () => {
+      updateScreen();
+      setTimeout(speakHint, 600);
+    });
+  </script>
+</body>
+</html>

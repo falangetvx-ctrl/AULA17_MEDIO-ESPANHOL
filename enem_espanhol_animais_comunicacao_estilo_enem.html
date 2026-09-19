@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ENEM Espanhol — Animales y Comunicación | Atividade Interativa Falange</title>
+
+  <style>
+    /* =========================================================
+       ATIVIDADE INTERATIVA FALANGE
+       ENEM ESPANHOL — ANIMAIS E COMUNICAÇÃO (NÍVEL DIFÍCIL)
+       ========================================================= */
+
+    :root{
+      --paper:#f3f4df;
+      --blue:#3aa0e6;
+      --violet:#9b59b6;
+      --red:#d94b3a;
+      --green:#2ecc71;
+      --yellow:#f4c542;
+      --ink:#111;
+      --soft:#fffdf0;
+      --shadow:0 10px 30px rgba(0,0,0,.18);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(135deg,#e7f3ff,#fff6d6);
+      color:var(--ink);
+    }
+
+    .wrap{
+      width:min(1200px, 96vw);
+      margin:24px auto;
+      background:var(--paper);
+      border:4px solid var(--ink);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    header{
+      padding:18px 24px;
+      background:#111;
+      color:white;
+      text-align:center;
+      border-bottom:5px solid var(--yellow);
+    }
+
+    header h1{
+      margin:0;
+      font-size:clamp(22px, 4vw, 40px);
+      text-transform:uppercase;
+      letter-spacing:1px;
+    }
+
+    header p{
+      margin:8px 0 0;
+      font-size:clamp(14px, 2vw, 18px);
+      color:#f4f4f4;
+    }
+
+    .main{
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:18px;
+      padding:20px;
+    }
+
+    .card{
+      background:var(--soft);
+      border:3px solid #222;
+      border-radius:18px;
+      padding:18px;
+      box-shadow:0 5px 0 rgba(0,0,0,.15);
+    }
+
+    .card h2{
+      margin:0 0 12px;
+      font-size:24px;
+      color:#222;
+    }
+
+    .notice{
+      padding:12px;
+      border:2px dashed var(--violet);
+      border-radius:12px;
+      background:#fff;
+      font-weight:700;
+      margin-bottom:14px;
+    }
+
+    .texto{
+      font-size:19px;
+      line-height:1.65;
+      text-align:justify;
+    }
+
+    .texto span.mark{
+      background:#fff2a8;
+      border-bottom:3px solid var(--yellow);
+      padding:0 4px;
+      border-radius:5px;
+      font-weight:700;
+    }
+
+    .fonte{
+      margin-top:12px;
+      font-size:14px;
+      font-style:italic;
+      color:#333;
+      text-align:right;
+    }
+
+    .hotspots{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:16px;
+    }
+
+    .hotspot{
+      border:3px solid #111;
+      border-radius:16px;
+      padding:14px;
+      background:white;
+      cursor:pointer;
+      transition:.2s;
+      min-height:110px;
+    }
+
+    .hotspot:hover{
+      transform:translateY(-3px);
+      box-shadow:0 8px 0 rgba(0,0,0,.2);
+      background:#fff7cc;
+    }
+
+    .hotspot strong{
+      display:block;
+      font-size:18px;
+      margin-bottom:6px;
+      color:#111;
+    }
+
+    .hotspot small{
+      font-size:14px;
+      color:#333;
+    }
+
+    .question{
+      font-size:19px;
+      line-height:1.45;
+      background:#fff;
+      border:3px solid var(--blue);
+      border-radius:14px;
+      padding:14px;
+      margin-bottom:14px;
+    }
+
+    .options{
+      display:grid;
+      gap:10px;
+    }
+
+    .option{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding:13px;
+      background:white;
+      border:3px solid #222;
+      border-radius:14px;
+      cursor:pointer;
+      transition:.15s;
+      font-size:16px;
+      line-height:1.35;
+    }
+
+    .option:hover{
+      background:#edf8ff;
+      transform:scale(1.01);
+    }
+
+    .letter{
+      min-width:34px;
+      height:34px;
+      border-radius:50%;
+      background:#111;
+      color:white;
+      display:grid;
+      place-items:center;
+      font-weight:900;
+    }
+
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:16px;
+    }
+
+    button{
+      border:3px solid #111;
+      border-radius:12px;
+      padding:12px 16px;
+      font-weight:900;
+      cursor:pointer;
+      background:var(--yellow);
+      box-shadow:0 4px 0 #111;
+      font-size:15px;
+    }
+
+    button:active{
+      transform:translateY(3px);
+      box-shadow:0 1px 0 #111;
+    }
+
+    .progress{
+      margin-top:14px;
+      padding:12px;
+      border-radius:12px;
+      background:#eafbea;
+      border:2px solid var(--green);
+      font-weight:800;
+    }
+
+    .modal-bg{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.72);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:50;
+      padding:20px;
+    }
+
+    .modal{
+      width:min(680px, 94vw);
+      background:#fffdf0;
+      border:5px solid #111;
+      border-radius:20px;
+      padding:22px;
+      box-shadow:var(--shadow);
+      animation:pop .18s ease-out;
+    }
+
+    @keyframes pop{
+      from{ transform:scale(.92); opacity:.4; }
+      to{ transform:scale(1); opacity:1; }
+    }
+
+    .modal h3{
+      margin:0 0 10px;
+      font-size:26px;
+      color:#111;
+    }
+
+    .modal p{
+      font-size:18px;
+      line-height:1.55;
+      margin:8px 0;
+    }
+
+    .modal .tip{
+      background:#eef8ff;
+      border-left:8px solid var(--blue);
+      padding:12px;
+      border-radius:8px;
+      font-weight:700;
+    }
+
+    .final{
+      display:none;
+      margin-top:14px;
+      padding:14px;
+      border:3px solid var(--green);
+      background:#eaffea;
+      border-radius:14px;
+      font-weight:900;
+      font-size:18px;
+    }
+
+    footer{
+      padding:12px 20px;
+      background:#111;
+      color:white;
+      text-align:center;
+      font-size:14px;
+    }
+
+    @media(max-width:900px){
+      .main{ grid-template-columns:1fr; padding:12px; }
+      .hotspots{ grid-template-columns:1fr; }
+      .texto{ font-size:17px; }
+      .wrap{ margin:8px auto; width:98vw; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <h1>ENEM Espanhol — Animales y Comunicación</h1>
+      <p>Atividade interativa com vocabulário de animais e interpretação textual nível ENEM</p>
+    </header>
+
+    <main class="main">
+      <section class="card">
+        <h2>1. Lee el texto con atención</h2>
+
+        <div class="notice">
+          Antes de marcar a alternativa, clique nos cartões de ajuda. Eles não entregam a resposta, mas orientam a leitura no estilo ENEM.
+        </div>
+
+        <article class="texto">
+          <p>
+            Aunque muchas personas creen que el lenguaje es exclusivo de los seres humanos,
+            diversos estudios muestran que varios animales desarrollan formas complejas de comunicación.
+            Las <span class="mark">abejas</span> realizan movimientos para indicar dónde encontrar flores;
+            los <span class="mark">delfines</span> utilizan sonidos diferentes para identificarse entre sí;
+            los <span class="mark">lobos</span> emplean los aullidos para reunir a la manada; y los
+            <span class="mark">búhos</span>, con sus cantos nocturnos, delimitan su territorio.
+          </p>
+
+          <p>
+            Estas formas de comunicación no constituyen un idioma como el humano, pero permiten
+            compartir información esencial para la supervivencia, la alimentación y la protección del grupo.
+          </p>
+        </article>
+
+        <div class="fonte">Texto elaborado para fins didáticos, em formato inspirado no ENEM.</div>
+
+        <div class="hotspots">
+          <div class="hotspot" onclick="openModal('vocabulario')">
+            <strong>🐝 Pista 1 — Vocabulário</strong>
+            <small>Observe os nomes dos animais e o que cada um realiza no texto.</small>
+          </div>
+
+          <div class="hotspot" onclick="openModal('oposicao')">
+            <strong>⚖️ Pista 2 — Comparação</strong>
+            <small>Veja como o texto compara a linguagem humana e a comunicação animal.</small>
+          </div>
+
+          <div class="hotspot" onclick="openModal('inferir')">
+            <strong>🧠 Pista 3 — Inferência</strong>
+            <small>A resposta exige concluir uma ideia, não apenas traduzir palavras.</small>
+          </div>
+
+          <div class="hotspot" onclick="openModal('enem')">
+            <strong>🎯 Pista 4 — Estratégia ENEM</strong>
+            <small>Elimine alternativas com exageros ou informações muito restritas.</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2. Marque a alternativa correta</h2>
+
+        <div class="question">
+          A partir da leitura do texto, conclui-se que a principal diferença estabelecida entre a comunicação humana e a comunicação animal é que esta última:
+        </div>
+
+        <div class="options">
+          <div class="option" onclick="checkAnswer('A')">
+            <span class="letter">A</span>
+            <span>apresenta menor eficiência, pois depende apenas de sons emitidos pelos animais.</span>
+          </div>
+
+          <div class="option" onclick="checkAnswer('B')">
+            <span class="letter">B</span>
+            <span>ocorre exclusivamente entre animais que vivem em grupo.</span>
+          </div>
+
+          <div class="option" onclick="checkAnswer('C')">
+            <span class="letter">C</span>
+            <span>desempenha funções específicas relacionadas à sobrevivência, sem constituir uma linguagem equivalente à humana.</span>
+          </div>
+
+          <div class="option" onclick="checkAnswer('D')">
+            <span class="letter">D</span>
+            <span>limita-se aos animais que possuem maior capacidade intelectual, como os golfinhos.</span>
+          </div>
+
+          <div class="option" onclick="checkAnswer('E')">
+            <span class="letter">E</span>
+            <span>substitui completamente outras formas de interação entre os animais.</span>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button onclick="resetActivity()">🔄 Reiniciar atividade</button>
+          <button onclick="openModal('semResposta')">💡 Quero uma pista final</button>
+        </div>
+
+        <div class="progress" id="progress">
+          Status: leia o texto, consulte as pistas e escolha uma alternativa.
+        </div>
+
+        <div class="final" id="finalBox">
+          ✅ Parabéns! Você interpretou corretamente a ideia central do texto.
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Material didático interativo — Padrão Falange | Língua Espanhola | Ensino Médio
+    </footer>
+  </div>
+
+  <div class="modal-bg" id="modalBg">
+    <div class="modal">
+      <h3 id="modalTitle">Título</h3>
+      <p id="modalText">Texto</p>
+      <div class="tip" id="modalTip">Dica</div>
+      <div class="controls">
+        <button onclick="closeModal()">Fechar pista</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modalBg = document.getElementById("modalBg");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalText = document.getElementById("modalText");
+    const modalTip = document.getElementById("modalTip");
+    const progress = document.getElementById("progress");
+    const finalBox = document.getElementById("finalBox");
+
+    const pistas = {
+      vocabulario:{
+        title:"🐝 Vocabulário de animais",
+        text:"O texto apresenta abejas, delfines, lobos e búhos. Cada animal aparece associado a uma forma de comunicação.",
+        tip:"Não basta traduzir o nome dos animais. Observe a função da comunicação em cada exemplo."
+      },
+      oposicao:{
+        title:"⚖️ Comunicação animal x linguagem humana",
+        text:"O texto afirma que os animais se comunicam de formas complexas, mas também deixa claro que essas formas não constituem um idioma como o humano.",
+        tip:"Procure a alternativa que respeita essa diferença sem diminuir totalmente a comunicação animal."
+      },
+      inferir:{
+        title:"🧠 Inferência textual",
+        text:"A questão pede uma conclusão a partir do conjunto do texto. A resposta correta combina duas ideias: comunicação animal existe, mas não equivale ao idioma humano.",
+        tip:"Cuidado com alternativas que usam palavras como 'apenas', 'exclusivamente', 'completamente' ou generalizações exageradas."
+      },
+      enem:{
+        title:"🎯 Estratégia ENEM",
+        text:"No ENEM, os distratores costumam distorcer o texto: restringem demais, exageram demais ou escolhem um exemplo como se fosse a ideia central.",
+        tip:"Delfines, lobos, abejas e búhos são exemplos. A questão quer a ideia geral construída por todos eles."
+      },
+      semResposta:{
+        title:"💡 Pista final",
+        text:"O último parágrafo é decisivo: a comunicação animal não é apresentada como idioma humano, mas como troca de informação útil para sobreviver, alimentar-se e proteger o grupo.",
+        tip:"A alternativa correta deve juntar essas duas partes da informação."
+      },
+      erro:{
+        title:"❌ Resposta incorreta",
+        text:"Essa alternativa não corresponde ao sentido global do texto. A atividade será reiniciada para você reler com atenção.",
+        tip:"Volte ao último parágrafo e veja qual alternativa mantém a diferença entre comunicação animal e linguagem humana."
+      }
+    };
+
+    function openModal(tipo){
+      const p = pistas[tipo];
+      modalTitle.textContent = p.title;
+      modalText.textContent = p.text;
+      modalTip.textContent = p.tip;
+      modalBg.style.display = "flex";
+    }
+
+    function closeModal(){
+      modalBg.style.display = "none";
+    }
+
+    function checkAnswer(letter){
+      if(letter === "C"){
+        progress.textContent = "Status: resposta correta. Atividade concluída.";
+        finalBox.style.display = "block";
+        openSuccessModal();
+      }else{
+        openModal("erro");
+        setTimeout(() => {
+          resetActivity();
+        }, 2600);
+      }
+    }
+
+    function openSuccessModal(){
+      modalTitle.textContent = "✅ Muito bem!";
+      modalText.textContent = "Você percebeu que o texto reconhece a comunicação animal, mas não a coloca como equivalente ao idioma humano.";
+      modalTip.textContent = "A alternativa correta é C, pois retoma a função da comunicação animal: sobrevivência, alimentação e proteção do grupo.";
+      modalBg.style.display = "flex";
+    }
+
+    function resetActivity(){
+      finalBox.style.display = "none";
+      progress.textContent = "Status: atividade reiniciada. Leia o texto e consulte as pistas novamente.";
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    modalBg.addEventListener("click", function(e){
+      if(e.target === modalBg){
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>

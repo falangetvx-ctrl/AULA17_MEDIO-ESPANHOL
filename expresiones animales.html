@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jogo Falange - Expressões com Animais</title>
+
+  <style>
+    /* =========================================================
+       PADRÃO FALANGE - CONFIGURAÇÃO VISUAL GERAL
+       Aqui ficam as cores, espaçamentos e aparência da página.
+    ========================================================= */
+    :root {
+      --vermelho: #e21b1b;
+      --vermelho-escuro: #a70f0f;
+      --amarelo: #ffd447;
+      --verde: #22c55e;
+      --azul: #1d4ed8;
+      --fundo: #fff7e8;
+      --texto: #1f2937;
+      --card: #ffffff;
+      --sombra: 0 12px 35px rgba(0,0,0,.16);
+      --borda: 4px solid #111827;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--texto);
+      background:
+        radial-gradient(circle at top left, rgba(255,212,71,.45), transparent 35%),
+        linear-gradient(135deg, #fff7e8, #ffe3e3);
+      min-height: 100vh;
+    }
+
+    /* =========================================================
+       CABEÇALHO
+       Mostra o título do jogo, instruções rápidas e status.
+    ========================================================= */
+    header {
+      background: linear-gradient(135deg, var(--vermelho), var(--vermelho-escuro));
+      color: white;
+      padding: 18px 16px;
+      border-bottom: 6px solid #111827;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.4rem, 3vw, 2.4rem);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    header p {
+      margin: 8px auto 0;
+      max-width: 900px;
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+
+    /* =========================================================
+       ÁREA PRINCIPAL
+       Divide o vídeo e o painel do jogo em blocos organizados.
+    ========================================================= */
+    main {
+      width: min(1180px, 96%);
+      margin: 22px auto;
+      display: grid;
+      grid-template-columns: 1.45fr .75fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: var(--borda);
+      border-radius: 22px;
+      box-shadow: var(--sombra);
+      overflow: hidden;
+    }
+
+    .card-title {
+      background: #111827;
+      color: white;
+      padding: 12px 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .video-area { padding: 14px; }
+
+    video {
+      width: 100%;
+      border-radius: 16px;
+      background: #000;
+      display: block;
+      outline: 4px solid #111827;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-weight: 900;
+      cursor: pointer;
+      color: white;
+      background: var(--vermelho);
+      box-shadow: 0 6px 0 #7f1010;
+      transition: transform .1s ease, box-shadow .1s ease;
+    }
+
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: translateY(4px); box-shadow: 0 2px 0 #7f1010; }
+    button.secondary { background: #111827; box-shadow: 0 6px 0 #000; }
+    button.success { background: var(--verde); box-shadow: 0 6px 0 #15803d; }
+
+    /* =========================================================
+       PAINEL DO ALUNO
+       Mostra pontuação, progresso, regras e mensagens.
+    ========================================================= */
+    .panel { padding: 16px; }
+
+    .badge {
+      display: inline-block;
+      background: var(--amarelo);
+      border: 3px solid #111827;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 900;
+      margin: 4px 4px 10px 0;
+    }
+
+    .status-box {
+      background: #f3f4f6;
+      border: 3px dashed #111827;
+      border-radius: 16px;
+      padding: 12px;
+      margin-top: 10px;
+      line-height: 1.45;
+    }
+
+    .progress-wrap {
+      height: 18px;
+      background: #e5e7eb;
+      border: 3px solid #111827;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--verde), var(--azul));
+      transition: width .3s ease;
+    }
+
+    /* =========================================================
+       MODAL DE PERGUNTA
+       Aparece por cima do vídeo quando chega no tempo marcado.
+    ========================================================= */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 999;
+    }
+
+    .overlay.active { display: flex; }
+
+    .question-card {
+      width: min(720px, 96vw);
+      background: #fff;
+      border: 5px solid #111827;
+      border-radius: 24px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+      padding: 20px;
+      text-align: center;
+      animation: pop .18s ease-out;
+    }
+
+    @keyframes pop {
+      from { transform: scale(.92); opacity: .5; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .question-card h2 {
+      margin: 0 0 10px;
+      color: var(--vermelho);
+      font-size: clamp(1.4rem, 4vw, 2rem);
+    }
+
+    .expression {
+      background: #111827;
+      color: white;
+      border-radius: 16px;
+      padding: 14px;
+      font-size: 1.3rem;
+      font-weight: 900;
+      margin: 12px 0;
+    }
+
+    .hint {
+      font-size: 1rem;
+      background: #fff7cc;
+      border: 3px solid #111827;
+      border-radius: 14px;
+      padding: 10px;
+      margin: 12px 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: 4px solid #111827;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      margin: 12px 0;
+    }
+
+    .feedback {
+      min-height: 28px;
+      font-weight: 900;
+      margin-top: 8px;
+    }
+
+    .ok { color: #15803d; }
+    .erro { color: #dc2626; }
+
+    .final-screen {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .final-screen.active { display: block; }
+
+    /* =========================================================
+       RESPONSIVIDADE
+       Ajusta para celular, tablet e projetor sem cortar conteúdo.
+    ========================================================= */
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: white; }
+      button, video, .overlay { display: none !important; }
+      main { display: block; }
+      .card { box-shadow: none; margin-bottom: 12px; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- =========================================================
+       CABEÇALHO DO JOGO
+  ========================================================== -->
+  <header>
+    <h1>🎮 Jogo Falange: Expressões com Animais</h1>
+    <p>Assista ao vídeo. Quando o jogo pausar, escreva em português o significado da expressão em espanhol. Errou ou deixou o tempo acabar? Volta tudo do início.</p>
+  </header>
+
+  <main>
+    <!-- =========================================================
+         BLOCO DO VÍDEO
+         O arquivo MP4 precisa ficar na mesma pasta deste HTML.
+    ========================================================== -->
+    <section class="card">
+      <div class="card-title">📺 Vídeo da atividade</div>
+      <div class="video-area">
+        <video id="video" controls preload="metadata" playsinline>
+          <source src="Expresiones_animales_5mb.mp4" type="video/mp4" />
+          Seu navegador não conseguiu carregar o vídeo.
+        </video>
+
+        <div class="controls">
+          <button id="btnStart" class="success">▶️ Iniciar jogo</button>
+          <button id="btnRestart" class="secondary">🔁 Recomeçar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         PAINEL DE INFORMAÇÕES
+    ========================================================== -->
+    <aside class="card">
+      <div class="card-title">📌 Painel do aluno</div>
+      <div class="panel">
+        <span class="badge">Fase: <span id="fase">0</span>/14</span>
+        <span class="badge">Acertos: <span id="acertos">0</span></span>
+        <span class="badge">Tempo: <span id="tempo">--</span></span>
+
+        <div class="progress-wrap">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+
+        <div class="status-box" id="status">
+          Clique em <strong>Iniciar jogo</strong>. O vídeo vai parar sozinho nas perguntas.
+        </div>
+
+        <div class="status-box">
+          <strong>Regras:</strong><br>
+          1. Responda em português.<br>
+          2. Pode escrever com ou sem acento.<br>
+          3. Se errar, o jogo recomeça do zero.<br>
+          4. Se tentar pular o vídeo, o jogo trava na parte correta.
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- =========================================================
+       MODAL DE PERGUNTA
+  ========================================================== -->
+  <div id="overlay" class="overlay">
+    <div class="question-card">
+      <h2>🧠 Pergunta Falange</h2>
+      <p id="questionText">Escreva o significado em português:</p>
+      <div id="expression" class="expression"></div>
+      <div id="hint" class="hint"></div>
+      <input id="answerInput" type="text" autocomplete="off" placeholder="Digite sua resposta em português..." />
+      <button id="btnAnswer" class="success">✅ Conferir resposta</button>
+      <div id="feedback" class="feedback"></div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       TELA FINAL
+  ========================================================== -->
+  <section id="finalScreen" class="final-screen">
+    <h1>🏆 ATIVIDADE CONCLUÍDA!</h1>
+    <p>Parabéns! Você respondeu todas as expressões com animais em português.</p>
+    <button onclick="restartGame()">Jogar novamente</button>
+  </section>
+
+  <script>
+    /* =========================================================
+       1. LISTA DE PERGUNTAS
+       time: segundo em que o vídeo vai pausar.
+       expressao: expressão mostrada ao aluno.
+       respostas: respostas aceitas em português.
+       dica: ajuda sem entregar totalmente a resposta.
+    ========================================================= */
+    const perguntas = [
+      {
+        time: 25,
+        expressao: "Ser un gallina",
+        respostas: ["ser covarde", "ter medo", "ser medroso", "ser medrosa", "ser cagão"],
+        dica: "É quando a pessoa tem medo de enfrentar uma situação."
+              },
+      {
+        time: 42,
+        expressao: "Ser la oveja negra",
+        respostas: ["ser a ovelha negra", "ser diferente da familia", "ser o diferente", "ser a pessoa diferente", "ser mal visto"],
+        dica: "É alguém visto como diferente dentro de um grupo ou família."
+      },
+      {
+  time: 58,
+  expressao: "Ser un mono / Ser una mona",
+  respostas: [
+    "ser bonito",
+    "ser bonita",
+    "ser lindo",
+    "ser linda",
+    "ser bonito(a)",
+    "ser atraente",
+    "ser gracioso",
+    "ser graciosa"
+  ],
+  dica: "É usado para dizer que uma pessoa é bonita, linda ou muito simpática na aparência."
+},
+      {
+  time: 75,
+  expressao: "Ser un perro",
+  respostas: [
+    "ser preguiçoso",
+    "ser preguiçosa",
+    "ter preguiça",
+    "ser muito preguiçoso",
+    "ser muito preguiçosa",
+    "ser vagabundo",
+    "ser desleixado"
+  ],
+  dica: "É uma expressão usada para descrever uma pessoa muito preguiçosa, que evita trabalhar ou fazer esforço."
+},
+      {
+  time: 95,
+  expressao: "Estar en edad de pavo",
+  respostas: [
+    "estar na adolescência",
+    "ser adolescente",
+    "estar na fase da adolescência",
+    "estar na idade da adolescência",
+    "estar na aborrescência",
+    "estar na fase de adolescente",
+    "estar na idade do adolescente"
+  ],
+  dica: "É a fase da adolescência, quando a pessoa muda muito de comportamento e ainda está amadurecendo."
+},
+{
+        time: 111,
+        expressao: "Estar como una cabra",
+        respostas: ["estar louco", "ser louco", "estar doido", "ser doido", "estar maluco"],
+        dica: "É usado para dizer que alguém faz coisas meio doidas."
+        
+      },
+      {
+  time: 129,
+  expressao: "Ser un burro",
+  respostas: [
+    "ser burro",
+    "ser ignorante",
+    "ser pouco inteligente",
+    "ser muito ignorante",
+    "não saber",
+    "não entender",
+    "ser lerdo"
+  ],
+  dica: "É uma expressão usada para descrever uma pessoa que tem dificuldade para aprender ou entender alguma coisa. Pode ser considerada ofensiva."
+},
+     {
+  time: 145, // altere para o segundo correto do vídeo
+  expressao: "No se ve tres en un burro",
+  respostas: [
+    "enxergar mal",
+    "não enxergar direito",
+    "ter má visão",
+    "ter visão ruim",
+    "ver mal",
+    "não ver direito",
+    "ser míope",
+    "enxergar muito mal"
+  ],
+  dica: "É uma expressão usada para dizer que uma pessoa enxerga muito mal."
+},
+{
+  time: 165, // altere para o segundo correto do vídeo
+  expressao: "Buscarle tres pies al gato",
+  respostas: [
+    "complicar as coisas",
+    "complicar tudo",
+    "procurar problema",
+    "procurar problemas",
+    "inventar problemas",
+    "criar dificuldades",
+    "dificultar as coisas",
+    "procurar dificuldade onde não existe",
+    "complicar algo simples"
+  ],
+  dica: "É uma expressão usada quando alguém complica uma situação simples ou procura problemas onde eles não existem."
+},
+      {
+  time: 185,
+  expressao: "Dar gato por liebre",
+  respostas: [
+    "enganar alguém",
+    "passar uma coisa por outra",
+    "fazer alguém acreditar em algo falso",
+    "dar um produto diferente do prometido"
+  ],
+  dica: "Significa enganar alguém, fazendo passar uma coisa por outra."
+},
+      
+      {
+  time: 202,
+  expressao: "Coger el toro por los cuernos",
+  respostas: [
+    "enfrentar o problema",
+    "resolver o problema",
+    "encarar a situação",
+    "tomar uma atitude",
+    "enfrentar a situação"
+  ],
+  dica: "Significa enfrentar um problema com coragem, sem fugir."
+},
+      {
+  time: 219,
+  expressao: "Ser una rata",
+  respostas: [
+    "ser pão-duro",
+    "ser muito econômico",
+    "não gostar de gastar dinheiro",
+    "ser avarento",
+    "ser mão de vaca"
+  ],
+  dica: "Refere-se a uma pessoa que evita gastar dinheiro, mesmo quando poderia."
+},
+{
+  time: 234,
+  expressao: "Comer como un pajarito",
+  respostas: [
+    "comer pouco",
+    "comer muito pouco",
+    "comer quase nada",
+    "ter pouco apetite",
+    "comer bem pouquinho"
+  ],
+  dica: "Significa comer muito pouco, como se tivesse pouco apetite."
+},
+{
+  time: 253,
+  expressao: "Tener memoria de pez",
+  respostas: [
+    "ter memória ruim",
+    "esquecer rápido",
+    "esquecer facilmente",
+    "não lembrar das coisas",
+    "ter pouca memória"
+  ],
+  dica: "Significa esquecer as coisas com facilidade, como se tivesse memória curta."
+},
+    ];
+
+    /* =========================================================
+       2. ELEMENTOS DA TELA
+       Guardamos os elementos em variáveis para controlar o jogo.
+    ========================================================= */
+    const video = document.getElementById("video");
+    const overlay = document.getElementById("overlay");
+    const expressionBox = document.getElementById("expression");
+    const hintBox = document.getElementById("hint");
+    const answerInput = document.getElementById("answerInput");
+    const feedback = document.getElementById("feedback");
+    const fase = document.getElementById("fase");
+    const acertos = document.getElementById("acertos");
+    const tempo = document.getElementById("tempo");
+    const statusBox = document.getElementById("status");
+    const progressBar = document.getElementById("progressBar");
+    const finalScreen = document.getElementById("finalScreen");
+
+    /* =========================================================
+       3. VARIÁVEIS DE CONTROLE
+       currentQuestion: pergunta atual.
+       gameStarted: impede que perguntas apareçam antes do início.
+       questionOpen: indica se a pergunta está na tela.
+       countdown: controla o tempo de resposta.
+    ========================================================= */
+    let currentQuestion = 0;
+    let gameStarted = false;
+    let questionOpen = false;
+    let countdown = null;
+    let timeLeft = 20;
+    let maxAllowedTime = 0;
+
+    /* =========================================================
+       4. NORMALIZAÇÃO DE TEXTO
+       Remove acentos, letras maiúsculas e espaços extras.
+       Assim, "memória" e "memoria" valem igual.
+    ========================================================= */
+    function normalizeText(text) {
+      return text
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    /* =========================================================
+       5. INICIAR O JOGO
+       Zera tudo, volta o vídeo para o começo e começa a execução.
+    ========================================================= */
+    function startGame() {
+      currentQuestion = 0;
+      gameStarted = true;
+      questionOpen = false;
+      maxAllowedTime = perguntas[0].time + 2;
+      finalScreen.classList.remove("active");
+      video.currentTime = 0;
+      video.play();
+      updatePanel("Jogo iniciado! Preste atenção no vídeo.");
+    }
+
+    /* =========================================================
+       6. RECOMEÇAR O JOGO
+       Usado quando o aluno erra, deixa o tempo acabar ou clica em recomeçar.
+    ========================================================= */
+    function restartGame(message = "Jogo reiniciado. Comece novamente.") {
+      clearInterval(countdown);
+      currentQuestion = 0;
+      gameStarted = false;
+      questionOpen = false;
+      maxAllowedTime = 0;
+      overlay.classList.remove("active");
+      finalScreen.classList.remove("active");
+      video.pause();
+      video.currentTime = 0;
+      updatePanel(message);
+    }
+
+    /* =========================================================
+       7. ABRIR PERGUNTA
+       Pausa o vídeo e mostra a pergunta correspondente.
+    ========================================================= */
+    function openQuestion() {
+      const q = perguntas[currentQuestion];
+      questionOpen = true;
+      video.pause();
+
+      expressionBox.textContent = q.expressao;
+      hintBox.textContent = "Dica: " + q.dica;
+      answerInput.value = "";
+      feedback.textContent = "";
+      feedback.className = "feedback";
+      overlay.classList.add("active");
+      answerInput.focus();
+
+      startQuestionTimer();
+      updatePanel("Responda à pergunta para continuar o vídeo.");
+    }
+
+    /* =========================================================
+       8. TEMPORIZADOR DA PERGUNTA
+       Cada pergunta tem 20 segundos. Se acabar, volta ao início.
+    ========================================================= */
+    function startQuestionTimer() {
+      clearInterval(countdown);
+      timeLeft = 20;
+      tempo.textContent = timeLeft + "s";
+
+      countdown = setInterval(() => {
+        timeLeft--;
+        tempo.textContent = timeLeft + "s";
+
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          feedback.textContent = "⏰ Tempo acabou! Voltando ao início...";
+          feedback.className = "feedback erro";
+          setTimeout(() => restartGame("Tempo esgotado. O aluno precisa recomeçar."), 1200);
+        }
+      }, 1000);
+    }
+
+    /* =========================================================
+       9. CONFERIR RESPOSTA
+       Se a resposta estiver na lista aceita, continua.
+       Se errar, reinicia o jogo do começo.
+    ========================================================= */
+    function checkAnswer() {
+      const q = perguntas[currentQuestion];
+      const respostaAluno = normalizeText(answerInput.value);
+      const corretas = q.respostas.map(normalizeText);
+
+      if (!respostaAluno) {
+        feedback.textContent = "Digite uma resposta antes de conferir.";
+        feedback.className = "feedback erro";
+        return;
+      }
+
+      const acertou = corretas.some(resp => respostaAluno === resp || respostaAluno.includes(resp) || resp.includes(respostaAluno));
+
+      if (acertou) {
+        clearInterval(countdown);
+        feedback.textContent = "✅ Correto! O vídeo vai continuar.";
+        feedback.className = "feedback ok";
+
+        setTimeout(() => {
+          overlay.classList.remove("active");
+          questionOpen = false;
+          currentQuestion++;
+
+          if (currentQuestion >= perguntas.length) {
+            finishGame();
+          } else {
+            maxAllowedTime = perguntas[currentQuestion].time + 2;
+            video.play();
+            updatePanel("Muito bem! Continue assistindo.");
+          }
+        }, 800);
+      } else {
+        clearInterval(countdown);
+        feedback.textContent = "❌ Errou! Voltando ao início...";
+        feedback.className = "feedback erro";
+        setTimeout(() => restartGame("Resposta errada. O jogo voltou para o começo."), 1200);
+      }
+    }
+
+    /* =========================================================
+       10. FINALIZAR JOGO
+       Mostra a tela de conclusão quando todas as perguntas acabam.
+    ========================================================= */
+    function finishGame() {
+      gameStarted = false;
+      video.pause();
+      finalScreen.classList.add("active");
+      updatePanel("Atividade concluída com sucesso!", true);
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
+
+    /* =========================================================
+       11. ATUALIZAR PAINEL
+       Mantém fase, acertos, barra de progresso e mensagens atualizadas.
+    ========================================================= */
+    function updatePanel(message, completed = false) {
+      fase.textContent = completed ? perguntas.length : currentQuestion;
+      acertos.textContent = completed ? perguntas.length : currentQuestion;
+      const percent = completed ? 100 : (currentQuestion / perguntas.length) * 100;
+      progressBar.style.width = percent + "%";
+      statusBox.innerHTML = message;
+      if (!questionOpen) tempo.textContent = "--";
+    }
+
+    /* =========================================================
+       12. MONITORAMENTO DO VÍDEO
+       Pausa automaticamente nos tempos marcados.
+       Também impede que o aluno avance além da pergunta atual.
+    ========================================================= */
+    video.addEventListener("timeupdate", () => {
+      if (!gameStarted || questionOpen || currentQuestion >= perguntas.length) return;
+
+      const nextTime = perguntas[currentQuestion].time;
+
+      if (video.currentTime > maxAllowedTime + 3) {
+        video.currentTime = Math.max(0, nextTime - 1);
+        updatePanel("Não pule o vídeo. Assista até a pergunta aparecer.");
+        return;
+      }
+
+      if (video.currentTime >= nextTime) {
+        openQuestion();
+      }
+    });
+
+    /* =========================================================
+       13. BOTÕES E TECLADO
+       Enter também confere a resposta.
+    ========================================================= */
+    document.getElementById("btnStart").addEventListener("click", startGame);
+    document.getElementById("btnRestart").addEventListener("click", () => restartGame());
+    document.getElementById("btnAnswer").addEventListener("click", checkAnswer);
+
+    answerInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") checkAnswer();
+    });
+
+    /* =========================================================
+       14. PROTEÇÃO SIMPLES
+       Se tentar dar play antes de iniciar, o vídeo para.
+    ========================================================= */
+    video.addEventListener("play", () => {
+      if (!gameStarted) {
+        video.pause();
+        updatePanel("Clique primeiro em <strong>Iniciar jogo</strong>.");
+      }
+    });
+
+    updatePanel("Clique em <strong>Iniciar jogo</strong>. O vídeo vai parar sozinho nas perguntas.");
+  </script>
+</body>
+</html>
