@@ -59,8 +59,9 @@ button{font-family:inherit;cursor:pointer;border:0}
 
 /* =========================================================
    AJUSTE PONTUAL — CERTIFICADO ANTIFRAUDE AULA 17
-   Liberação exclusiva pelo código do professor.
+   Liberação automática após conclusão das cinco páginas.
 ========================================================= */
+#certBtn[hidden]{display:none!important;}
 #certBtn.cert-float{
   position:fixed;
   right:18px;
@@ -2757,7 +2758,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 <div class="toast" id="toast">Mensagem</div>
 <div class="progress-final" id="progressFinal">Progresso: 0/5 páginas</div>
 
-<button id="certBtn" class="cert-float" onclick="openCertificate()">🎓 Liberar certificado — professor</button>
+<button id="certBtn" class="cert-float" hidden onclick="openCertificate()">🎓 Ver certificado</button>
 <div id="certOverlay" aria-hidden="true">
   <div id="certCard">
     <div id="certInner">
@@ -2770,11 +2771,11 @@ button{font-family:inherit;cursor:pointer;border:0}
       </p>
       <p><strong>Código antifraude:</strong> <span id="certAntiCode">—</span></p>
       <div id="certValidationBox">
-        ✅ Certificado liberado exclusivamente pelo código do professor.<br>
+        ✅ Certificado liberado automaticamente após concluir todas as páginas e atividades.<br>
         <span id="certFingerprint">FALANGE-A17-000000</span>
         <div class="certTamperNotice">Este certificado contém código, data, aluno, turma e escola para conferência.</div>
       </div>
-      <div id="certWatermark">FALANGE • AULA 17 • CERTIFICADO ANTIFRAUDE • CÓDIGO DO PROFESSOR</div>
+      <div id="certWatermark">FALANGE • AULA 17 • CERTIFICADO DE CONCLUSÃO AUTOMÁTICA</div>
       <div id="certBtns">
         <button class="certBtn certBtnPrimary" onclick="window.print()">🖨️ Imprimir certificado</button>
         <button class="certBtn" onclick="closeCertificate()">Fechar</button>
@@ -2785,7 +2786,6 @@ button{font-family:inherit;cursor:pointer;border:0}
 
 
 <script>
-const TEACHER_CODE = "caminante no hay camino";
 const vocab = [
   ["la tortuga","a tartaruga","reptil"],["el perro","o cachorro","mamifero"],["la vaca","a vaca","mamifero"],["la rana","a rã","reptil"],
   ["el gato","o gato","mamifero"],["el conejo","o coelho","mamifero"],["el cerdo","o porco","mamifero"],["el pájaro","o pássaro","ave"],
@@ -2846,6 +2846,7 @@ function markRealCompletion(n){
   localStorage.setItem(COMPLETED_KEY, JSON.stringify(completed));
   toast("Página "+n+" concluída.");
   updateStatus();
+  if(allActivitiesDone()) openCertificate();
 }
 function completePage(n){
   toast("Esta etapa só é concluída automaticamente quando a atividade termina de verdade.");
@@ -2887,8 +2888,9 @@ function updateStatus(){
   document.getElementById("progressFinal").textContent="Progresso: "+total+"/5 páginas";
   const certBtn=document.getElementById("certBtn");
   if(certBtn){
-    certBtn.classList.add("available");
-    certBtn.textContent = "🎓 Liberar certificado — professor";
+    certBtn.classList.toggle("available", allActivitiesDone());
+    certBtn.hidden = !allActivitiesDone();
+    certBtn.textContent = "🎓 Ver certificado";
   }
   const p1=document.getElementById("p1status");
   if(p1){
@@ -2955,12 +2957,11 @@ function buildCertificate(releasedBy){
   }
 }
 function openCertificate(){
-  const pass = prompt("Certificado protegido. Digite o código do professor:");
-  if((pass||"").trim().toLowerCase() !== TEACHER_CODE.toLowerCase()){
-    toast("Código incorreto. O certificado só pode ser liberado pelo professor.");
+  if(!allActivitiesDone()){
+    toast("Conclua todas as páginas e atividades para receber o certificado.");
     return;
   }
-  buildCertificate("Código do professor");
+  buildCertificate("Conclusão automática de todas as atividades");
   document.getElementById("certOverlay").classList.add("show");
   document.getElementById("certOverlay").setAttribute("aria-hidden","false");
 }
